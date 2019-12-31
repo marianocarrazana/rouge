@@ -1,5 +1,5 @@
 <?php
-namespace OnePagePHP;
+namespace Rouge;
 /**
  * Used for load the controllers
  */

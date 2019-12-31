@@ -1,5 +1,5 @@
 <?php
-namespace OnePagePHP\Interfaces;
+namespace Rouge\Interfaces;
 
 interface Log{
 	const LOG_NONE = '';

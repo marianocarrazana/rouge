@@ -1,6 +1,5 @@
 <?php
-
-namespace OnePagePHP;
+namespace Rouge;
 
 /**
  * The reactor adds interactivity(or reactivity) in the client side.

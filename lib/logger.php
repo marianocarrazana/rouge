@@ -1,8 +1,8 @@
 <?php
-namespace OnePagePHP;
+namespace Rouge;
 
 require_once __dir__ . "/interfaces/log.php";
-use OnePagePHP\Interfaces\Log;
+use Rouge\Interfaces\Log;
 /**
  *
  */

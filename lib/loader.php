@@ -1,5 +1,5 @@
 <?php
-namespace OnePagePHP;
+namespace Rouge;
 
 require_once __dir__ . '/router.php';
 require_once __dir__ . '/renderer.php';
@@ -36,8 +36,8 @@ class Loader
             $GLOBALS[$config["error_handler"]["logger_global_variable"]] = $this->logger;
         }
         $headers = getallheaders();
-        if (isset($headers["X-Onepagephp"])) {
-            $x_onepagephp   = json_decode($headers["X-Onepagephp"], true);
+        if (isset($headers["X-Rouge"])) {
+            $x_onepagephp   = json_decode($headers["X-Rouge"], true);
             $this->fullMode = $x_onepagephp["fullMode"];
         } else {
             $this->fullMode = true;
@@ -100,7 +100,7 @@ class Loader
         if(empty($config["paths"]["views"]))trigger_error("'paths.views' is needed",E_USER_ERROR);
         if(empty($config["paths"]["controllers"]))trigger_error("'paths.controllers' is needed",E_USER_ERROR);
         if(empty($config["paths"]["sections"]))trigger_error("'paths.sections' is needed",E_USER_ERROR);
-        if(empty($config["default_title"]))$config["default_title"] = "OnePagePHP";
+        if(empty($config["default_title"]))$config["default_title"] = "Rouge";
         if(empty($config["eval_scripts"]))$config["eval_scripts"] = true;
         if(empty($config["templates_extension"]))$config["templates_extension"] = "html";
         if(empty($config["router"]["enable"]))$config["router"]["enable"] = true;

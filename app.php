@@ -1,12 +1,12 @@
 <?php
 require_once 'vendor/autoload.php';
 require_once 'lib/loader.php';
-use OnePagePHP\Loader;
+use Rouge\Loader;
 
 //load the config.json and save it inside the $config variable
 $config = Loader::loadJSON("config.json");
 $config["root_dir"] = __dir__;
-//Initialize the class OnePagePHP\Loader with the config
+//Initialize the class Rouge\Loader with the config
 $app = new Loader($config);
 
 //$router is declared globally in OnePage construct

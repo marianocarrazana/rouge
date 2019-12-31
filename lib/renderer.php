@@ -1,5 +1,5 @@
 <?php
-namespace OnePagePHP;
+namespace Rouge;
 
 /**
  * Renderer
@@ -7,7 +7,7 @@ namespace OnePagePHP;
 class Renderer
 {
 
-    private $OnePage               = null;
+    private $app               = null;
     private $rendered              = false;
     private $paths                 = [];
     private static $twigExtensions = [];
@@ -15,10 +15,10 @@ class Renderer
     private $sectionsFiles         = [];
     private $config                = [];
 
-    public function __construct(Loader &$OnePage)
+    public function __construct(Loader &$app)
     {
-        $this->OnePage = $OnePage;
-        $this->paths   = $OnePage->getConfig("paths");
+        $this->app = $app;
+        $this->paths   = $app->getConfig("paths");
         $sections      = scandir($this->paths["sections"]);
         foreach ($sections as $i) {
             if (preg_match('/[^\.]/', $i)) {
@@ -30,7 +30,7 @@ class Renderer
 
             }
         }
-        $this->config = $OnePage->getConfig("renderer");
+        $this->config = $app->getConfig("renderer");
     }
 
     public function renderFile(string $filePath){
@@ -45,12 +45,12 @@ class Renderer
     public function render(string $template = "", $serverVariables=[]) {
         $errors        = "";
         $log           = "";
-        $error_handler = $this->OnePage->getConfig("error_handler");
-        $store = $this->OnePage->getStore();
+        $error_handler = $this->app->getConfig("error_handler");
+        $store = $this->app->getStore();
 
         // Reactor
-        $reactor = $this->OnePage->getReactor();
-        $pageId = $this->OnePage->getUrl();
+        $reactor = $this->app->getReactor();
+        $pageId = $this->app->getUrl();
         $clientVariables = $store->getClientVariables();
         $template = $reactor->parseStoreAttr($template,$pageId,$clientVariables);
         $template = $reactor->parseReactorTag($template,$pageId);
@@ -61,28 +61,28 @@ class Renderer
         $variables = array_merge($store->getServerVariables(),$serverVariables);
 
         if ($error_handler["debug_mode"]) {
-            $logger = $this->OnePage->getLogger();
+            $logger = $this->app->getLogger();
             $errors = join("<br>", $logger->getHtmlErrors());
             $log    = join(";", $logger->getConsoleLog());
         }
         if (!isset($variables['title'])) {
-            $variables['title'] = $this->OnePage->getConfig("default_title");
+            $variables['title'] = $this->app->getConfig("default_title");
         }
-        if ($this->OnePage->getFullMode()) {
+        if ($this->app->getFullMode()) {
             //include headers only on get request
             $onepagejs    = file_get_contents(__dir__ . "/onepage.js"); //include onepagejs in library mode too
-            $eval_scripts = $this->OnePage->getConfig('eval_scripts');
+            $eval_scripts = $this->app->getConfig('eval_scripts');
             $href = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http") . "://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]";
             $replaceState = "window.history.replaceState({'content':document.getElementById('content').innerHTML,'scripts':".json_encode(join(";", $scripts)).",'title':'{$variables['title']}'}, '', location.href);";
-            $template = "{% extends 'base." . $this->OnePage->getConfig('templates_extension') . "' %}{% block content %}{$errors}<script>{$log}</script>{$template}{% endblock %}";
-            $extension = $this->OnePage->getConfig('templates_extension');
+            $template = "{% extends 'base." . $this->app->getConfig('templates_extension') . "' %}{% block content %}{$errors}<script>{$log}</script>{$template}{% endblock %}";
+            $extension = $this->app->getConfig('templates_extension');
             preg_match('/<head[^>]*>/', $this->sectionsFiles["base.{$extension}"],$headerTag);
             $headerScript = "{$headerTag[0]}<script type='text/javascript'>{$onepagejs}</script>";
             preg_match('/<\/body[^>]*>/', $this->sectionsFiles["base.{$extension}"],$bodyTag);
             $bodyScript = "<script type='text/javascript'>OnePage.site_url='{{site_url}}';OnePage.updateRoutes();OnePage.eval_scripts={$eval_scripts};\n" . join(";", $scripts) . ";\n{$replaceState}</script>{$bodyTag[0]}";
             $this->sectionsFiles["base.{$extension}"] = str_replace([$headerTag[0],$bodyTag[0]], [$headerScript,$bodyScript], $this->sectionsFiles["base.{$extension}"]);
         }
-        $site_url                   = $this->OnePage->getConfig('site_url');
+        $site_url                   = $this->app->getConfig('site_url');
         $variables['site_url']      = $site_url;
         $templateName = "ophp_string_renderer.html";
         $this->sectionsFiles[$templateName] = $template;
@@ -118,7 +118,7 @@ class Renderer
         }
 
         $output = $this->twig->render($templateName, $variables);
-        if (!$this->OnePage->getFullMode()) {
+        if (!$this->app->getFullMode()) {
             return $this->renderJSON([
                 "title"   => $variables["title"],
                 "content" => $output,

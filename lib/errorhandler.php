@@ -1,5 +1,5 @@
 <?php
-namespace OnePagePHP;
+namespace Rouge;
 require_once __dir__ . "/interfaces/error_handler.php";
 require_once __dir__ . '/logger.php';
 
@@ -13,12 +13,12 @@ class ErrorHandler implements Interfaces\ErrorHandler
     private $logger = null;
     private $displayOn = '';
 
-    public function __construct(Loader &$OnePage)
+    public function __construct(Loader &$app)
     {
         set_error_handler([$this, 'err_handler']);
         set_exception_handler([$this, 'exc_handler']);
         ini_set('display_errors', 'Off'); //disable default log report
-        $config          = $OnePage->getConfig("error_handler");
+        $config          = $app->getConfig("error_handler");
         $this->debugMode = $config["debug_mode"];
         $this->displayOn = $config["display_on"];
         $this->logger = new Logger($config["display_on"]);
@@ -92,8 +92,8 @@ class ErrorHandler implements Interfaces\ErrorHandler
         $this->logger->addHtmlError($exception);
         $this->logger->addConsoleLog("error",$exception);
         $headers = getallheaders();
-        if (isset($headers["X-OnePagePHP"])) {
-            $x_onepagephp = json_decode($headers["X-OnePagePHP"], true);
+        if (isset($headers["X-Rouge"])) {
+            $x_onepagephp = json_decode($headers["X-Rouge"], true);
             $fullMode     = $x_onepagephp["fullMode"];
         } else {
             $fullMode = true;

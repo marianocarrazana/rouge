@@ -1,5 +1,5 @@
 <?php
-namespace OnePagePHP;
+namespace Rouge;
 
 /**
  * Global store shared between the server and client

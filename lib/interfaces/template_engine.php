@@ -1,4 +1,4 @@
 <?php
-interface TemplateEngine{
+interface Rouge{
 	public function process();
 }

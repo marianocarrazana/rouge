@@ -1,5 +1,5 @@
 <?php
-namespace OnePagePHP;
+namespace Rouge;
 
 require_once __dir__ . "/sandbox.php";
 
@@ -10,16 +10,16 @@ class Router
 {
     private $routes  = [];
     private $url     = "";
-    private $OnePage = null;
+    private $app = null;
     private $paths   = [];
     private $config  = [];
 
-    public function __construct(Loader &$OnePage)
+    public function __construct(Loader &$app)
     {
-        $this->url     = $OnePage->getUrl();
-        $this->paths   = $OnePage->getConfig("paths");
-        $this->OnePage = $OnePage;
-        $this->config  = $OnePage->getConfig("router");
+        $this->url     = $app->getUrl();
+        $this->paths   = $app->getConfig("paths");
+        $this->app = $app;
+        $this->config  = $app->getConfig("router");
     }
 
     public function addRoute(string $route, $function_controller, array $methods = [])
@@ -58,7 +58,7 @@ class Router
     public function checkRoutes()
     {
         $noRoute   = true;
-        $debugMode = $this->OnePage->getConfig("error_handler")["debug_mode"];
+        $debugMode = $this->app->getConfig("error_handler")["debug_mode"];
         foreach ($this->routes as $route) {
             //check if the route exist
             if (preg_match($route["regexp"], $this->url) && $noRoute) {
@@ -87,9 +87,9 @@ class Router
                     } else if ($debugMode) {
                         trigger_error("${controller} controller doesn't exist", 1024);
                     }
-                    $view = $this->paths["views"] . "${route['controller']}." . $this->OnePage->getConfig('templates_extension');
+                    $view = $this->paths["views"] . "${route['controller']}." . $this->app->getConfig('templates_extension');
                     if (file_exists($view)) {
-                        $this->OnePage->getRenderer()->autoRender("${route['controller']}." . $this->OnePage->getConfig('templates_extension'));
+                        $this->app->getRenderer()->autoRender("${route['controller']}." . $this->app->getConfig('templates_extension'));
                     }else if($debugMode){
                         trigger_error("${view} view doesn't exist", 1024);
                     }
@@ -100,17 +100,17 @@ class Router
         if ($noRoute) {
             $noFiles = true;
             if ($this->config["auto_render"]) {
-                $controller = $this->OnePage->getControllerPath();
+                $controller = $this->app->getControllerPath();
                 if (file_exists($controller)) {
                     new Sandbox($controller);
                     $noFiles = false;
                 }else if($debugMode){
                     trigger_error("${controller} view doesn't exist", 1024);
                 }
-                $view = $this->paths["views"] . $this->OnePage->getTemplate();
-                $renderer = $this->OnePage->getRenderer();
+                $view = $this->paths["views"] . $this->app->getTemplate();
+                $renderer = $this->app->getRenderer();
                 if (file_exists($view)) {
-                    $renderer->autoRender($this->OnePage->getTemplate());
+                    $renderer->autoRender($this->app->getTemplate());
                     $noFiles = false;
                 }else if($debugMode && !$renderer->getRendered()){
                     trigger_error("${view} view doesn't exist", 1024);
