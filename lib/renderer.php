@@ -79,7 +79,7 @@ class Renderer
             preg_match('/<head[^>]*>/', $this->sectionsFiles["base.{$extension}"],$headerTag);
             $headerScript = "{$headerTag[0]}<script type='text/javascript'>{$onepagejs}</script>";
             preg_match('/<\/body[^>]*>/', $this->sectionsFiles["base.{$extension}"],$bodyTag);
-            $bodyScript = "<script type='text/javascript'>OnePage.site_url='{{site_url}}';OnePage.updateRoutes();OnePage.eval_scripts={$eval_scripts};\n" . join(";", $scripts) . ";\n{$replaceState}</script>{$bodyTag[0]}";
+            $bodyScript = "<script type='text/javascript'>Rouge.site_url='{{site_url}}';Rouge.updateRoutes();Rouge.eval_scripts={$eval_scripts};\n" . join(";", $scripts) . ";\n{$replaceState}</script>{$bodyTag[0]}";
             $this->sectionsFiles["base.{$extension}"] = str_replace([$headerTag[0],$bodyTag[0]], [$headerScript,$bodyScript], $this->sectionsFiles["base.{$extension}"]);
         }
         $site_url                   = $this->app->getConfig('site_url');

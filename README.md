@@ -37,13 +37,13 @@ Future Features:
 * Rust flavour
 * A free CMS based on the library
 
-Why use OnePagePHP and not another JS/PHP framework?
+Why use Rouge and not another JS/PHP framework?
 
 * Easy to learn: there's nothing complicated, if you already know how to use twig and php you probably only need another 15 minutes to learn the rest.
 * Fast deploy: just upload your site to your server, run the composer installer and it is ready to use with full SSR out of the box.
 * Is fast: actually is very fast in the server and client with very low consumptions of resources in both sides.
 * Is cheap: the framework is free and the servers where you can run it are cheap and sometimes are free, the only requirement is have php7 and apache2/nginx installed.
-* Is easy to use for designers: I already say it before but if you only know how to make web pages without the programmatic part is ok because is not needed, stop struggling trying to learn how to use some complicated Nodejs library for use the SPA feature, you only need to know where to put the files and OnePagePHP will care of the rest.
+* Is easy to use for designers: I already say it before but if you only know how to make web pages without the programmatic part is ok because is not needed, stop struggling trying to learn how to use some complicated Nodejs library for use the SPA feature, you only need to know where to put the files and Rouge will care of the rest.
 
 ## Guide
 
@@ -72,11 +72,11 @@ Open the config.json file and adapt the content for your site.
 
 `paths.sections`: is the folder where are templates that can be loaded from others templates.
 
-`default_title`: the title that will be displayed if there is not a title defined. You can define a title inside your controller with `OnePage::addVariable("title","my title")`.
+`default_title`: the title that will be displayed if there is not a title defined. You can define a title inside your controller with `$store->addServerVariable("title","my title")`.
 
 `site_url`: the full site url to add to the relative href and src paths, this is necessary for the SPA feature, if your site domain is something like "mysite.com" put in the configuration "//mysite.com" or if you want to force the use of https "[https://mysite.com](https://mysite.com)".
 
-`eval_scripts`: (true or false) scripts shared with `OnePage::addScript` will be evaluated with eval() function, this is unsafe if your using a non https site.
+`eval_scripts`: (true or false) scripts shared with `$reactor->addScript()` will be evaluated with eval() function, this is unsafe if your using a non https site.
 
 `automatic_render`: (true or false) if it will search files inside the controllers/templates and automatically render it.
 
@@ -84,7 +84,7 @@ Open the config.json file and adapt the content for your site.
 
 `templates_extension`: the file extension of your templates, generally "html" or "twig".
 
-`enable_router`: (true or false) it will auto-load the OnePagePHP\Router class.
+`enable_router`: (true or false) it will auto-load the Rouge\Router class.
 
 **Create a simple page**
 
@@ -111,7 +111,7 @@ $store->addVariable("name","Maria");
 
 Reload [`mysite.com/mypage`](https://mysite.com/mypage) and we will see "Hello world! My name is Maria".
 
-`$store` is a instance of `OnePagePHP\Store` class generated automatically and saved like a global variable.
+`$store` is a instance of `Rouge\Store` class generated automatically and saved like a global variable.
 
 You can access to variables from the url with `$variables` array.
 
@@ -138,7 +138,7 @@ This is just a example, the url and the variables support regular expressions.
         $renderer->renderString("{{something}}", $params);
     }, ["GET", "POST"]); //this will render on "say/hello" URL the text "hello"
 
-`$renderer` is a global variable created(automatically, like $router) with the instance of the class OnePage
+`$renderer` is a global variable created(automatically, like $router) with the instance of the class Rouge\Loader
 
 `{something}` is a parameter name, you  can get the content with `$params['something']`
 
