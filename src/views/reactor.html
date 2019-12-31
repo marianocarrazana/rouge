@@ -1,0 +1,12 @@
+<input value="Store.style" onkeyup="Store.style = this.value" type="text" >
+<div style="Store.style">Change my style!^</div>
+<reactor id="counter">
+	me.innerHTML = "Clicks:"+Store.counter;
+</reactor>
+<button onclick="Store.counter++">Click me!</button>
+
+<style>
+	#counter{
+		font-size: 150%;
+	}
+</style>
