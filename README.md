@@ -64,9 +64,9 @@ For Nginx try to adding this to your configuration file:
 
 **Set the configuration**
 
-Open the config.json file and adapt the content for your site.
+Open the config.json file and adapt the content for your site, for now only change the `site_url` to your actual site URL.
 
-`paths.views`: is the folder where you put your html templates.
+`paths.views`: is the folder where you put your HTML templates.
 
 `paths.controllers`: is the folder where you put your php logic.
 
@@ -74,21 +74,39 @@ Open the config.json file and adapt the content for your site.
 
 `default_title`: the title that will be displayed if there is not a title defined. You can define a title inside your controller with `$store->addServerVariable("title","my title")`.
 
-`site_url`: the full site url to add to the relative href and src paths, this is necessary for the SPA feature, if your site domain is something like "mysite.com" put in the configuration "//mysite.com" or if you want to force the use of https "[https://mysite.com](https://mysite.com)".
+`site_url`: the full site url to add to the relative href and src paths, this is necessary for the SPA feature, if your site domain is something like "mysite.com" put in the configuration `//mysite.com` or if you want to force the use of https `https://mysite.com`, if the web/app is inside a subfolder add the full path `//mysite.com/apps/rouge_app`.
 
 `eval_scripts`: (true or false) scripts shared with `$reactor->addScript()` will be evaluated with eval() function, this is unsafe if your using a non https site.
-
-`automatic_render`: (true or false) if it will search files inside the controllers/templates and automatically render it.
 
 `root_dir`: the full path of your project in your file system, this will used to solve the all paths defined in the paths.php/templates/sections.
 
 `templates_extension`: the file extension of your templates, generally "html" or "twig".
 
-`enable_router`: (true or false) it will auto-load the Rouge\Router class.
+`router.enable`: (true or false) it will auto-load the Rouge\Router class.
+
+`router.auto_routes`: (true or false) auto-generate routes.
+
+`router.global_variable`: (default: router) variable global name.
+
+`router.auto_render`: (true or false) automatically render templates at the end of the controller.
+
+`renderer.enable`: (true or false) it will auto-load the Rouge\Renderer class.
+
+`renderer.global_variable`: (default: renderer) variable global name.
+
+`renderer.content_element_id`: (default: content) unique HTML element id to be replace with actual content.
+
+`error_handler.enable`: (true or false) it will auto-load the Rouge\ErrorHandler class.
+
+`error_handler.debug_mode`: (true or false) show extra information like templates or controllers missing.
+
+`error_handler.display_on`: (`all`,`none`,`html`,`console`) print errors on navigator console, html content, both or disable completely.
+
+`error_handler.logger_global_variable`: (default: console) variable global name for the logger.
 
 **Create a simple page**
 
-If you want to add a page accessible in with the url `mysite.com/mypage` just add a file with the name `mypage.html` inside the `src/views` folder, remember you dont need to define the headers or sections that are shared for all pages inside this document, if you wanna change the default design edit the `src/sections/base.html` file just remember to leave the `{% block content %}{% endblock %}` inside `#content` element for the SPA featured. For a root urls like [`mysite.com/`](https://mysite.com/) edit the `index.html` inside the `src/views` folder.
+If you want to add a page accessible in with the url `mysite.com/mypage` just add a file with the name `mypage.html` inside the `src/views` folder, remember you don't need to define the headers or sections that are shared for all pages inside this document, if you want to change the default design edit the `src/sections/base.html` file just remember to leave the `{% block content %}{% endblock %}` inside `#content` element for the SPA featured. For a root urls like `mysite.com/` edit the `index.html` inside the `src/views` folder.
 
 Inside the mypage.html put this:
 
@@ -109,11 +127,11 @@ $store->addVariable("name","Maria");
 ```
 
 
-Reload [`mysite.com/mypage`](https://mysite.com/mypage) and we will see "Hello world! My name is Maria".
+Reload `mysite.com/mypage` and we will see "Hello world! My name is Maria".
 
 `$store` is a instance of `Rouge\Store` class generated automatically and saved like a global variable.
 
-You can access to variables from the url with `$variables` array.
+You can access to parameters from the URL with the `$params` array.
 
 **Add a link in your navigation menu with SPA support**
 
@@ -121,18 +139,25 @@ This is very simple, just add an `A` element with a relative path inside the rou
 
 ```html
 <ul ..>
-    <li><a route="{{site_url}}">Home</a></li>
+    <li><a route=".">Home</a></li>
     <li><a route="mypage">My Page</a></li>
     ...
 </ul>
 ```
 
-
 Reload the page and try to click in all the links and you will see how the content is loaded without full reloading the page.
 
 ## Router
 
-This is just a example, the url and the variables support regular expressions.
+The router makes create routes very easily, the auto-generator is enabled by default and is not necessary that you add routes manually, but there is some extras features that probably you will need on more complex sites design.
+
+The router variable is accessible in global context with `$router`.
+
+`$router->addRoute('url','function or controller/template name')`: manually create a route.
+
+`$router->checkRoutes()`: this is called generally when all your data/model is loaded to check existing routes and load/render the controllers/templates.
+
+This is just a example, the URL and the variables support regular expressions.
 
     $router->addRoute("say/{something}", function ($params) use($renderer) {
         $renderer->renderString("{{something}}", $params);
@@ -142,11 +167,11 @@ This is just a example, the url and the variables support regular expressions.
 
 `{something}` is a parameter name, you  can get the content with `$params['something']`
 
-A route more complex can be `"(sum|add)/{num1:number}/{num2:\d+}"` where `(sum|add)` are regexp and `num1` and `num2` variables are numbers(`number` can be a regular expression too like `\d+`).
+A route more complex can be `"(sum|add)/{num1:number}/{num2:\d+}"` where `(sum|add)` are regexp,sum or add word, and `num1` and `num2` variables are numbers(`number` can be a regular expression too like `\d+`).
 
 ## Store
 
-The store is used to share variables beetween the server and client.
+The store is used to share variables between the server and client.
 
 In php(server side) you can define globals variables with `$store->setVariable('varName','value')` this variable will be accesible with the the template engine(server side) using `{{varName}}` and from javascript with `Store.varName` or `window.Store.varName`.
 
@@ -158,3 +183,60 @@ If you need to define a client only variable you can use `$store->setClientVaria
 
 ## Reactor
 
+The reactor adds reactivity and evaluate(or execute) all scripts on client side. Also parse html content with javascript content.
+
+On server side you can use `$reactor->addScript('-js script-')` to add a custom js scripts to execute on client side.
+
+## Reactivity
+
+The Rouge reactivity is inspired on VueJS and Svelte, it uses getters and setters to update the content and all of them are precomputed on server side with no virtual-dom. 
+
+To learn how to add reactivity to your web/app you only need 3 minutes, is really easy.
+
+First we need to define a variable in our store in the server side. We can use `$store->addClientVariable('varName','value')` or `$store->addVariable('varName','value')`(this will be available on server side to use with twig too). 
+
+Now we only need to define the `varName` on the client side too. There is two methods for this:
+
+1. Use HTML attributes with `Store.varName`.
+2. Use the `<reactor></reactor>` tag.
+
+To understand better we can test a real example:
+
+reactivity.php
+
+```php
+<?php
+global $store;
+$store->addVariable("name","");
+```
+
+reactivity.html
+```html
+<p content='Store.name'></p>
+```
+
+With this we are telling to render Store.name variable inside our `p` tag. The `content` attribute is parsed on server side and tell to the client that the content is the window.Store.name javascript variable. Now we can open the console and change that value, we can use `Store.name = 'Maria'` press enter and the `p` content will be changed to `Maria`. We can use HTML tags or attributes to define a new `p` content, for example `Store.name = '<b style="color:red">Maria</b>'`;
+
+We are using pure javascript, nothing new, so if we want to add an input that changes the `Store.name` variable we can use something like this:
+
+reactivity.html
+```html
+<p content='Store.name'></p>
+<input type="text" value="" onkeyup="Store.name = this.value" />
+```
+
+So with `onkeyup="Store.name = this.value"` we are telling to client that changes `Store.name` value when a key is released.
+
+But if we want to process data before print our name we need use the `reactor` tag. The reactor tag is the same that `script` tag with 2 differences: in the client side is render like an HTML element(by default a `div`) and inside our script we have a `me` variable, this is used like reference to our html element, so to change the content we use pure javascript:
+
+reactivity.html
+```html
+<reactor>
+me.innerHTML = "My name is " + Store.name;
+</reactor>
+<input type="text" value="" onkeyup="Store.name = this.value" />
+```
+
+With this we are telling to change the innerHTML from our element to "My name is " plus the content from `Store.name`, the reactivity will always work inside the reactor tag but it will not work outside of this.
+
+And that's all for now, the final version will be available on composer until then I don't recommend to use this in a professional project.
