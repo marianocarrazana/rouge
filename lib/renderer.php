@@ -54,6 +54,7 @@ class Renderer
         $clientVariables = $store->getClientVariables();
         $template = $reactor->parseStoreAttr($template,$pageId,$clientVariables);
         $template = $reactor->parseReactorTag($template,$pageId);
+        $template = $reactor->loadScripts($template);
         $reactor->generateStore($clientVariables);
         $reactor->generateFunctions();
         $scripts = $reactor->getScripts();

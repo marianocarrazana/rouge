@@ -135,23 +135,52 @@ class Reactor
     }
 
     /**
+     * Add html document script tags to internal script array
+     * @param  string $html Document to load scripts
+     * @return string       Document without scripts
+     */
+    public function loadScripts(string $html){
+        $dom = new \DOMDocument();
+        @$dom->loadHTML($html);
+
+        $nodes = $dom->getElementsByTagName("script");
+        for ($i = $nodes->length; --$i >= 0;) {
+            $scriptTag = $nodes->item($i);
+            $node = $scriptTag->childNodes->item(0);
+            // check if the first child is only text and doesnt has the attribute "src"
+            if($node instanceof \DomText && !$scriptTag->hasAttribute("src")){
+                $this->scripts[] = $node->wholeText;
+                $scriptTag->parentNode->removeChild($scriptTag);
+            }
+        }
+
+        $html_fragment = $dom->saveHTML();
+        $html_fragment = preg_replace('/^<!DOCTYPE.+?>/', '', str_replace( array('<html>', '</html>', '<body>', '</body>'), array('', '', '', ''), $html_fragment));
+        
+        return $html_fragment;
+    }
+
+    /**
      * @param  array $storeVars Variables from a store
      * @return void
      */
     public function generateStore(array $storeVars){
     	foreach ($storeVars as $key => $value) {
             $value = json_encode($value);
-    		$this->scripts[] = "Store.__vars.{$key} = {$value};
-    		Object.defineProperty(Store,'{$key}', 
-    		{
-       			set: function(value) { 
-       				this.__vars.{$key} = value; 
-       				Reactor.updateValues('{$key}');
-       			},
-                get: function(){
-                    return this.__vars.{$key};
-                }
-    		})";
+    		$this->scripts[] = "
+            if(Store.__vars.{$key}===undefined){
+                Store.__vars.{$key} = {$value};
+        		Object.defineProperty(Store,'{$key}', 
+        		{
+           			set: function(value) { 
+           				this.__vars.{$key} = value; 
+           				Reactor.updateValues('{$key}');
+           			},
+                    get: function(){
+                        return this.__vars.{$key};
+                    }
+        		});
+            }";
     	}
     }
 
