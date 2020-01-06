@@ -6,6 +6,7 @@ require_once __dir__ . '/renderer.php';
 require_once __dir__ . '/errorhandler.php';
 require_once __dir__ . '/reactor.php';
 require_once __dir__ . '/store.php';
+require_once __dir__ . '/utils.php';
 
 /**
  *
@@ -118,22 +119,6 @@ class Loader
         if(empty($config["store"]["global_variable"]))$config["store"]["global_variable"] = "store";
         if(empty($config["reactor"]["enable"]))$config["reactor"]["enable"] = true;
         if(empty($config["reactor"]["global_variable"]))$config["reactor"]["global_variable"] = "reactor";
-    }
-
-    public static function loadJSON(string $path, bool $convert_to_array = true)
-    {
-        if (!file_exists($path)) {
-            trigger_error("File doesnt exist:" . $path, E_USER_WARNING);
-            return false;
-        }
-
-        $string = file_get_contents($path);
-        $json   = json_decode($string, $convert_to_array);
-        if($json == null){
-            trigger_error("JSON bad formatted or null",E_USER_NOTICE);
-            return false;
-        }
-        return $json;
     }
 
     public static function isWindows(){

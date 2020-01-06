@@ -69,7 +69,7 @@ class Renderer
             $variables['title'] = $this->app->getConfig("default_title");
         }
         if ($this->app->getFullMode()) {
-            //include headers only on get request
+            //include headers only on full request
             $onepagejs    = file_get_contents(__dir__ . "/onepage.js"); //include onepagejs in library mode too
             $eval_scripts = $this->app->getConfig('eval_scripts');
             $href = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http") . "://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]";

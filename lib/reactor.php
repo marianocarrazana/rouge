@@ -109,29 +109,29 @@ class Reactor
      * @return string Parsed html
      */
     public function parseReactorTag(string $html, string $pageId){
-        $re = '/<reactor(?<attr>[^>]*)>(?<script>.*?)<\/reactor>/is';
-        //search for <reactor x>x</reactor> tags
-        preg_match_all($re, $html, $reactorTags);
-        $oldTags = $reactorTags[0];
-        foreach ($reactorTags[0] as $key => $value) {
-            //tags
-            /*preg_match('/tag=[\"\'](?<tag>[^\"\']+)[\"\']/', $reactorTags["attr"][$key],$tagName);
-            if(empty($tagName))$replaceTag = "div";
-            else {
-                $replaceTag = $tagName["tag"];
-                $reactorTags["attr"][$key] = str_replace($tagName[0], "", $reactorTags["attr"][$key]);
-            }*/
-            $id = $pageId . "_rs_" . $key;
+        $dom = new \DOMDocument();
+        @$dom->loadHTML($html);
+        
+        $nodes = $dom->getElementsByTagName("reactor");
+        for ($i = $nodes->length; --$i >= 0;) {
+            foreach ($nodes->item($i)->childNodes as $element) {
+                if($element instanceof \DomElement)$tagNode = $element; 
+                else if($element instanceof \DomText)$textNode = $element->wholeText;
+            }
+            if(!isset($tagNode))$tagNode = $dom->createElement('div');
+            if(!isset($textNode))$textNode = "";
+            $id = $pageId . "_rs_" . $i;
             $functionId = "f_{$id}";
-            preg_match_all('/=.*\WStore\.(?<name>\w+)/', $reactorTags["script"][$key], $storeValues);
-            //$element = "<{$replaceTag} data-reactor_id='{$id}". $reactorTags["attr"][$key] . "></{$replaceTag}>";
-            $element = "<div data-reactor_id='{$id}'". $reactorTags["attr"][$key] . "></div>";
-            $exec = "var me=document.querySelector(\"*[data-reactor_id='{$id}']\");". $reactorTags["script"][$key];
+            preg_match_all('/=.*\WStore\.(?<name>\w+)/', $textNode, $storeValues);
+            $tagNode->setAttribute("data-reactor_id",$id);
+            $exec = "var me=document.querySelector(\"*[data-reactor_id='{$id}']\");". $textNode;
             $this->reactorScripts[] = ["id"=>$functionId,"exec"=>$exec,"vars"=>json_encode($storeValues["name"])];
-            $reactorTags[0][$key] = $element;
+            $nodes->item($i)->parentNode->replaceChild($tagNode, $nodes->item($i));
         }
-        $html = str_replace($oldTags, $reactorTags[0], $html);
-        return $html;
+        $html_fragment = $dom->saveHTML();
+        $html_fragment = preg_replace('/^<!DOCTYPE.+?>/', '', str_replace( array('<html>', '</html>', '<body>', '</body>'), array('', '', '', ''), $html_fragment));
+        
+        return $html_fragment;
     }
 
     /**

@@ -4,7 +4,7 @@ require_once 'lib/loader.php';
 use Rouge\Loader;
 
 //load the config.json and save it inside the $config variable
-$config = Loader::loadJSON("config.json");
+$config = Rouge\Utils::loadJSON("config.json");
 $config["root_dir"] = __dir__;
 //Initialize the class Rouge\Loader with the config
 $app = new Loader($config);
