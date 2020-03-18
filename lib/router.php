@@ -83,7 +83,7 @@ class Router
                     $controller = $this->paths["controllers"] . "${route['controller']}.php";
                     if (file_exists($controller)) {
                         new Sandbox(
-                            $this->paths["controllers"] . "${route['controller']}.php",$vars);
+                            $this->paths["controllers"] . "${route['controller']}.php",$vars,$this->app);
                     } else if ($debugMode) {
                         trigger_error("${controller} controller doesn't exist", 1024);
                     }
@@ -102,7 +102,7 @@ class Router
             if ($this->config["auto_render"]) {
                 $controller = $this->app->getControllerPath();
                 if (file_exists($controller)) {
-                    new Sandbox($controller);
+                    new Sandbox($controller,[],$app);
                     $noFiles = false;
                 }else if($debugMode){
                     trigger_error("${controller} view doesn't exist", 1024);
